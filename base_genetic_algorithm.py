@@ -2,6 +2,8 @@ import copy
 from abc import ABC, abstractmethod
 from typing import List, Set
 
+from tqdm import tqdm
+
 from utils import is_list_of_unique_objects
 
 
@@ -29,9 +31,13 @@ class Population(ABC):
     def get_best_individual(self):
         def sort_func(x):
             return self.get_fitness_for_individual(x)
+
         pop_sorted = copy.deepcopy(self.population)
         pop_sorted.sort(key=sort_func)
         return pop_sorted[-1]
+
+    def get_best_individual_fitness_score(self):
+        return max(self.get_fitness_for_all())
 
 
 class MutationMethod(ABC):
@@ -64,22 +70,19 @@ class BaseGeneticAlgorithm(ABC):
         self.cross_over = crossover
         self.selection = selection
         self.gene_values = []
+        self.history = []
         self.verbose = verbose
 
     def run(self, generations):
-        for i in range(0, generations):
+        for i in tqdm(range(0, generations)):
             selected = self.selection.select(self.population, len(self.population.population))
-            self.population.population = selected
-            if self.verbose:
-                print(is_list_of_unique_objects(self.population.population))
+            self.population = selected
             children = self.cross_over.crossover(self.population)
-            self.population.population = children
-            if self.verbose:
-                print(is_list_of_unique_objects(self.population.population))
+            self.population = children
             children = self.mutation.mutate(self.population)
             self.population = children
+            self.history.append(copy.deepcopy(self.population))
             if self.verbose:
-                print(is_list_of_unique_objects(self.population.population))
                 print(f"Generation {i + 1}")
                 for child in self.population.population:
                     print(f"{child} - {self.population.get_fitness_for_individual(child)}")

@@ -52,7 +52,7 @@ def main():
         mutation=OnePlaceMutation(probability=0.05),
         selection=RouletteSelection()
     )
-    gen_alg.run(100)
+    gen_alg.run(10000)
     color_solution = gen_alg.population.get_best_individual()
     print(color_solution)
     print(gen_alg.population.get_fitness_for_individual(color_solution))
@@ -62,12 +62,16 @@ def main():
     pos = nx.shell_layout(gr)
     color_map = plt.cm.get_cmap('Spectral')
 
-    nx.draw(gr,
-            pos,
-            node_color=[color_map(color_solution[idx] / max(color_solution)) for idx, node in enumerate(gr)],
-            with_labels=True)
-    plt.show()
+    # nx.draw(
+    #     gr,
+    #     pos,
+    #     node_color=[color_map(color_solution[idx] / max(color_solution)) for idx, node in enumerate(gr)],
+    #     with_labels=True
+    # )
+    # plt.show()
 
+    plt.plot([abs(pop.get_best_individual_fitness_score()) for pop in gen_alg.history])
+    plt.show()
 
 if __name__ == '__main__':
     main()

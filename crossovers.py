@@ -1,3 +1,4 @@
+import copy
 import random
 
 from base_genetic_algorithm import CrossOverMethod, Population
@@ -8,7 +9,8 @@ class OnePlaceCrossover(CrossOverMethod):
     def __init__(self, probability):
         self.probability = probability
 
-    def crossover(self, population: Population):
+    def crossover(self, population: Population) -> Population:
+        new_pop = copy.deepcopy(population)
         cross_prob = [random.random() for _ in range(len(population.population))]
         to_cross = []
         children = []
@@ -28,4 +30,5 @@ class OnePlaceCrossover(CrossOverMethod):
             child1 = parent1[:cross_field] + parent2[cross_field:]
             child2 = parent2[:cross_field] + parent1[cross_field:]
             children.extend([child2, child1])
-        return children
+            new_pop.population = children
+        return new_pop

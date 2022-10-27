@@ -19,7 +19,7 @@ class GraphVertexColoringPopulation(Population):
         self.generate_initial_population()
 
     def get_fitness_for_individual(self, individual):
-        k = len(list(set(individual))) / 5
+        k = len(list(set(individual)))
         penalty = 0 + k
         vertex_count = len(individual)
         for i in range(vertex_count):
