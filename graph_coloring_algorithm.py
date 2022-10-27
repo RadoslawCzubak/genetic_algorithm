@@ -1,71 +1,16 @@
-import copy
 import random
 
 import numpy as np
 
-from base_genetic_algorithm import MutationMethod, SelectionMethod, CrossOverMethod, Population
-
-
-class OnePlaceMutation(MutationMethod):
-
-    def __init__(self, probability):
-        self.probability = probability
-
-    def mutate(self, population: Population):
-        mutation_prob = [random.random() for i in population.population]
-        for index, individual in enumerate(population.population):
-            if mutation_prob[index] < self.probability:
-                mutation_index = random.randint(0, len(individual)-1)
-                individual[mutation_index] = copy.deepcopy(
-                    random.choice(list(population.gene_values_sets[mutation_index]))
-                )
-        return population
-
-
-class OnePlaceCrossover(CrossOverMethod):
-
-    def __init__(self, probability):
-        self.probability = probability
-
-    def crossover(self, population: Population):
-        cross_prob = [random.random() for _ in range(len(population.population))]
-        to_cross = []
-        children = []
-        for index, individual in enumerate(population.population):
-            if cross_prob[index] < self.probability:
-                to_cross.append(individual)
-            else:
-                children.append(individual)
-
-        if len(to_cross) % 2 == 1:
-            children.append(to_cross.pop(random.randint(0, len(to_cross) - 1)))
-
-        for i in range(0, len(to_cross), 2):
-            cross_field = random.randint(1, len(to_cross[i]) - 1)
-            parent1 = to_cross[i]
-            parent2 = to_cross[i + 1]
-            child1 = parent1[:cross_field] + parent2[cross_field:]
-            child2 = parent2[:cross_field] + parent1[cross_field:]
-            children.extend([child2, child1])
-        return children
-
-
-class RouletteSelection(SelectionMethod):
-
-    def select(self, population: Population, k):
-        choices = random.choices(population.population,
-                                 [1 / abs(fitness) for fitness in population.get_fitness_for_all()], k=k)
-        return [copy.deepcopy(item) for item in choices]
+from base_genetic_algorithm import Population
 
 
 class GraphVertexColoringPopulation(Population):
 
     def __init__(self, population_count: int, adjacency_matrix: np.matrix):
         if adjacency_matrix.shape[0] != adjacency_matrix.shape[1]:
-            raise ValueError
+            raise ValueError("adjacency_matrix must be square!")
 
-        if population_count % 2 == 1:
-            raise ValueError("Population should be even")
         self.adjacency_matrix = adjacency_matrix
         self.population_count = population_count
         gene_values = set(range(self.get_max_colors()))
