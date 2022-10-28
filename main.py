@@ -6,7 +6,7 @@ from tqdm import tqdm
 from base_genetic_algorithm import PipelineGeneticAlgorithm
 from crossovers import OnePlaceCrossover
 from graph_coloring_algorithm import GraphVertexColoringPopulation
-from mutations import OnePlaceMutation
+from mutations import OnePlaceMutation, Inversion
 from selections import RouletteSelection
 from test_graphs import graph3
 
@@ -56,7 +56,8 @@ def main():
         pipeline=[
             RouletteSelection(),
             OnePlaceCrossover(probability=0.8),
-            OnePlaceMutation(probability=0.8)
+            OnePlaceMutation(probability=0.8),
+            Inversion(probability=0.5)
         ]
     )
 
