@@ -1,6 +1,6 @@
 import copy
 from abc import ABC, abstractmethod
-from typing import List, Set
+from typing import List, Set, Optional
 
 from tqdm import tqdm
 
@@ -63,8 +63,8 @@ class CrossOverMethod(ABC):
 
 class BaseGeneticAlgorithm(ABC):
 
-    def __init__(self, population: Population, crossover: CrossOverMethod, mutation: MutationMethod,
-                 selection: SelectionMethod, verbose: bool = False):
+    def __init__(self, population: Population, crossover: Optional[CrossOverMethod], mutation: Optional[MutationMethod],
+                 selection: Optional[SelectionMethod], verbose: bool = False):
         self.population = population
         self.mutation = mutation
         self.cross_over = crossover
@@ -81,6 +81,31 @@ class BaseGeneticAlgorithm(ABC):
             self.population = children
             children = self.mutation.mutate(self.population)
             self.population = children
+            self.history.append(copy.deepcopy(self.population))
+            if self.verbose:
+                print(f"Generation {i + 1}")
+                for child in self.population.population:
+                    print(f"{child} - {self.population.get_fitness_for_individual(child)}")
+
+                print(is_list_of_unique_objects(self.population.population))
+                print("\n\n")
+
+
+class PipelineGeneticAlgorithm(BaseGeneticAlgorithm):
+
+    def __init__(self, population: Population, pipeline: List, verbose: bool = False):
+        super().__init__(population, None, None, None, verbose)
+        self.pipeline = pipeline
+
+    def run(self, generations):
+        for i in tqdm(range(0, generations)):
+            for operator in self.pipeline:
+                if isinstance(operator, MutationMethod):
+                    self.population = operator.mutate(self.population)
+                elif isinstance(operator, SelectionMethod):
+                    self.population = operator.select(self.population, self.population.population_count)
+                elif isinstance(operator, CrossOverMethod):
+                    self.population = operator.crossover(self.population)
             self.history.append(copy.deepcopy(self.population))
             if self.verbose:
                 print(f"Generation {i + 1}")
