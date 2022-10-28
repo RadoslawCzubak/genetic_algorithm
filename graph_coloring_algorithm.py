@@ -19,13 +19,13 @@ class GraphVertexColoringPopulation(Population):
         self.generate_initial_population()
 
     def get_fitness_for_individual(self, individual):
-        k = len(list(set(individual)))
+        k = len(list(set(individual))) / 10
         penalty = 0 + k
-        vertex_count = len(individual)
-        for i in range(vertex_count):
-            for j in range(i, vertex_count):
-                if self.adjacency_matrix[i, j] == 1 and individual[i] == individual[j] and i != j:
-                    penalty += 1
+        connected_vertex = np.where(self.adjacency_matrix == 1)
+        for idx in range(len(connected_vertex[0])):
+            i, j = connected_vertex[0][idx], connected_vertex[1][idx]
+            if i != j and individual[i] == individual[j]:
+                penalty += 1
         return -float(penalty)
 
     def generate_initial_population(self):
