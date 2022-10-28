@@ -30,10 +30,12 @@ def plot_fitness_in_time(algorithm_history, mean=False, samples=None):
     else:
         step = int(len(algorithm_history) / samples)
     if not mean:
-        plt.plot([abs(algorithm_history[idx].get_best_individual_fitness_score()) for idx in tqdm(range(0, len(algorithm_history), step))])
+        plt.plot([abs(algorithm_history[idx].get_best_individual_fitness_score()) for idx in
+                  tqdm(range(0, len(algorithm_history), step))])
     else:
         plt.plot(
-            [abs(np.array(algorithm_history[idx].get_fitness_for_all()).mean()) for idx in tqdm(range(0, len(algorithm_history), step))])
+            [abs(np.array(algorithm_history[idx].get_fitness_for_all()).mean()) for idx in
+             tqdm(range(0, len(algorithm_history), step))])
     plt.show()
 
 
