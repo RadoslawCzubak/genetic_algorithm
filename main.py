@@ -44,20 +44,13 @@ def main():
 
     G = nx.Graph(graph)
 
-    # gen_alg = BaseGeneticAlgorithm(
-    #     population=GraphVertexColoringPopulation(10, graph),
-    #     crossover=OnePlaceCrossover(probability=0.8),
-    #     mutation=OnePlaceMutation(probability=0.1),
-    #     selection=RouletteSelection()
-    # )
-
     gen_alg = PipelineGeneticAlgorithm(
         population=GraphVertexColoringPopulation(10, graph),
         pipeline=[
             RouletteSelection(),
-            OnePlaceCrossover(probability=0.8),
-            OnePlaceMutation(probability=0.8),
-            Inversion(probability=0.5)
+            OnePlaceCrossover(probability=0.75),
+            OnePlaceMutation(probability=0.05),
+            Inversion(probability=0.01)
         ]
     )
 
