@@ -10,8 +10,8 @@ class OnePlaceMutation(MutationMethod):
         self.probability = probability
 
     def mutate(self, population: Population):
-        mutation_prob = [random.random() for i in population.population]
-        for index, individual in enumerate(population.population):
+        mutation_prob = [random.random() for i in population.individuals]
+        for index, individual in enumerate(population.individuals):
             if mutation_prob[index] < self.probability:
                 mutation_index = random.randint(0, len(individual) - 1)
                 individual[mutation_index] = copy.deepcopy(
@@ -26,8 +26,8 @@ class Inversion(MutationMethod):
         self.probability = probability
 
     def mutate(self, population: Population) -> Population:
-        mutation_prob = [random.random() for i in population.population]
-        for index, individual in enumerate(population.population):
+        mutation_prob = [random.random() for i in population.individuals]
+        for index, individual in enumerate(population.individuals):
             if mutation_prob[index] < self.probability:
                 start = random.randint(1, len(population.gene_values_sets) - 1)
                 end = random.randint(1, len(population.gene_values_sets) - 1)

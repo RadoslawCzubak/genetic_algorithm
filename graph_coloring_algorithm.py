@@ -31,10 +31,10 @@ class GraphVertexColoringPopulation(Population):
     def generate_initial_population(self):
         am = np.matrix(self.adjacency_matrix)
         vertex_count = am.shape[0]
-        population = []
+        individuals = []
         for i in range(self.population_count):
-            population.append([random.choice(list(self.gene_values_sets[i])) for i in range(vertex_count)])
-        self.population = population
+            individuals.append([random.choice(list(self.gene_values_sets[i])) for i in range(vertex_count)])
+        self.individuals = individuals
 
     def get_max_colors(self):
         return self.adjacency_matrix.sum(0).max() + 1

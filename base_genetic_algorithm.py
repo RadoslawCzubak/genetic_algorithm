@@ -10,13 +10,13 @@ from utils import is_list_of_unique_objects
 class Population(ABC):
 
     def __init__(self, population_count: int, gene_values_sets: List[Set]):
-        self.gene_values_sets = gene_values_sets
-        self.population = None
-        self.population_count = population_count
+        self.gene_values_sets: List[Set] = gene_values_sets
+        self.individuals: List[List] = []
+        self.population_count: int = population_count
 
     def get_fitness_for_all(self):
         fitness_values = []
-        for individual in self.population:
+        for individual in self.individuals:
             fitness_values.append(self.get_fitness_for_individual(individual))
         return fitness_values
 
@@ -32,7 +32,7 @@ class Population(ABC):
         def sort_func(x):
             return self.get_fitness_for_individual(x)
 
-        pop_sorted = copy.deepcopy(self.population)
+        pop_sorted = copy.deepcopy(self.individuals)
         pop_sorted.sort(key=sort_func)
         return pop_sorted[-1]
 
@@ -75,7 +75,7 @@ class BaseGeneticAlgorithm(ABC):
 
     def run(self, generations):
         for i in tqdm(range(0, generations)):
-            selected = self.selection.select(self.population, len(self.population.population))
+            selected = self.selection.select(self.population, len(self.population.individuals))
             self.population = selected
             children = self.cross_over.crossover(self.population)
             self.population = children
@@ -84,11 +84,22 @@ class BaseGeneticAlgorithm(ABC):
             self.history.append(copy.deepcopy(self.population))
             if self.verbose:
                 print(f"Generation {i + 1}")
-                for child in self.population.population:
+                for child in self.population.individuals:
                     print(f"{child} - {self.population.get_fitness_for_individual(child)}")
 
-                print(is_list_of_unique_objects(self.population.population))
+                print(is_list_of_unique_objects(self.population.individuals))
                 print("\n\n")
+
+    def get_best_individual_with_iter(self):
+        best = self.population.get_best_individual()
+        idx_best = 0
+        for idx, population in enumerate(self.history):
+            best_in_population = population.get_best_individual()
+            if self.population.get_fitness_for_individual(
+                    best_in_population) > self.population.get_fitness_for_individual(best):
+                best = best_in_population
+                idx_best = idx
+        return idx_best + 1, best, self.population.get_fitness_for_individual(best)
 
 
 class PipelineGeneticAlgorithm(BaseGeneticAlgorithm):
@@ -109,8 +120,8 @@ class PipelineGeneticAlgorithm(BaseGeneticAlgorithm):
             self.history.append(copy.deepcopy(self.population))
             if self.verbose:
                 print(f"Generation {i + 1}")
-                for child in self.population.population:
+                for child in self.population.individuals:
                     print(f"{child} - {self.population.get_fitness_for_individual(child)}")
 
-                print(is_list_of_unique_objects(self.population.population))
+                print(is_list_of_unique_objects(self.population.individuals))
                 print("\n\n")
