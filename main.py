@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
@@ -5,8 +7,8 @@ from tqdm import tqdm
 
 from base_genetic_algorithm import PipelineGeneticAlgorithm
 from crossovers import OnePlaceCrossover
-from graph_coloring_algorithm import GraphVertexColoringPopulation
-from mutations import OnePlaceMutation, Inversion
+from graph_coloring_algorithm import GraphVertexColoringPopulation, GraphColoringAlorithm
+from mutations import OnePlaceMutation
 from selections import RouletteSelection
 from test_graphs import graph3
 
@@ -44,24 +46,40 @@ def main():
 
     G = nx.Graph(graph)
 
-    gen_alg = PipelineGeneticAlgorithm(
-        population=GraphVertexColoringPopulation(10, graph),
-        pipeline=[
-            RouletteSelection(),
-            OnePlaceCrossover(probability=0.75),
-            OnePlaceMutation(probability=0.05),
-            Inversion(probability=0.01)
-        ]
-    )
+    test_population = GraphVertexColoringPopulation(10, graph, same_color_penalty=1,
+                                                    color_diversity_penalty_multiplier=0.33)
+    cross_probabilities = [0.2, 0.5, 0.7, 0.99]
+    mutation_probabilities = [0.001, 0.01, 0.1, 0.5]
 
-    gen_alg.run(10000)
-    color_solution = gen_alg.population.get_best_individual()
-    print(color_solution)
-    print(gen_alg.population.get_fitness_for_individual(color_solution))
-    print(len(set(color_solution)))
+    results = []
+    for idx_cross, cross_probability in enumerate(cross_probabilities):
+        for idx_mut, mutation_probability in enumerate(mutation_probabilities):
+            gen_alg = GraphColoringAlorithm(
+                population=deepcopy(test_population),
+                pipeline=[
+                    RouletteSelection(),
+                    OnePlaceCrossover(probability=cross_probability),
+                    OnePlaceMutation(probability=mutation_probability)
+                ],
+                no_update_iters=8000
+            )
 
-    show_graph_with_colors(G, color_solution)
-    plot_fitness_in_time(gen_alg.history, True, samples=500)
+            gen_alg.run(20000)
+            color_solution = gen_alg.population.get_best_individual()
+            best_color_solution_found = gen_alg.get_best_individual_with_iter()
+            print(color_solution)
+            print(f"best: {best_color_solution_found}")
+            print(gen_alg.population.get_fitness_for_individual(color_solution))
+            print(len(set(color_solution)))
+
+            results.append({"cross_prob": cross_probability, "mut_prob": mutation_probability,
+                            "last_best": (
+                                color_solution, gen_alg.population.get_fitness_for_individual(color_solution)),
+                            "best": best_color_solution_found, })
+            # show_graph_with_colors(G, color_solution)
+            # plot_fitness_in_time(gen_alg.history, samples=500, mean=False)
+
+    print(results)
 
 
 if __name__ == '__main__':

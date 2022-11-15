@@ -75,12 +75,7 @@ class BaseGeneticAlgorithm(ABC):
 
     def run(self, generations):
         for i in tqdm(range(0, generations)):
-            selected = self.selection.select(self.population, len(self.population.individuals))
-            self.population = selected
-            children = self.cross_over.crossover(self.population)
-            self.population = children
-            children = self.mutation.mutate(self.population)
-            self.population = children
+            self.run_iteration()
             self.history.append(copy.deepcopy(self.population))
             if self.verbose:
                 print(f"Generation {i + 1}")
@@ -89,6 +84,12 @@ class BaseGeneticAlgorithm(ABC):
 
                 print(is_list_of_unique_objects(self.population.individuals))
                 print("\n\n")
+            if self.stop_condition():
+                break
+
+    @abstractmethod
+    def run_iteration(self):
+        pass
 
     def get_best_individual_with_iter(self):
         best = self.population.get_best_individual()
@@ -101,27 +102,22 @@ class BaseGeneticAlgorithm(ABC):
                 idx_best = idx
         return idx_best + 1, best, self.population.get_fitness_for_individual(best)
 
+    @abstractmethod
+    def stop_condition(self) -> bool:
+        pass
 
-class PipelineGeneticAlgorithm(BaseGeneticAlgorithm):
+
+class PipelineGeneticAlgorithm(BaseGeneticAlgorithm, ABC):
 
     def __init__(self, population: Population, pipeline: List, verbose: bool = False):
         super().__init__(population, None, None, None, verbose)
         self.pipeline = pipeline
 
-    def run(self, generations):
-        for i in tqdm(range(0, generations)):
-            for operator in self.pipeline:
-                if isinstance(operator, MutationMethod):
-                    self.population = operator.mutate(self.population)
-                elif isinstance(operator, SelectionMethod):
-                    self.population = operator.select(self.population, self.population.population_count)
-                elif isinstance(operator, CrossOverMethod):
-                    self.population = operator.crossover(self.population)
-            self.history.append(copy.deepcopy(self.population))
-            if self.verbose:
-                print(f"Generation {i + 1}")
-                for child in self.population.individuals:
-                    print(f"{child} - {self.population.get_fitness_for_individual(child)}")
-
-                print(is_list_of_unique_objects(self.population.individuals))
-                print("\n\n")
+    def run_iteration(self):
+        for operator in self.pipeline:
+            if isinstance(operator, MutationMethod):
+                self.population = operator.mutate(self.population)
+            elif isinstance(operator, SelectionMethod):
+                self.population = operator.select(self.population, self.population.population_count)
+            elif isinstance(operator, CrossOverMethod):
+                self.population = operator.crossover(self.population)
