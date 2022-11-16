@@ -7,7 +7,7 @@ from tqdm import tqdm
 from utils import is_list_of_unique_objects
 
 
-class Population(ABC):
+class Population(ABC, object):
 
     def __init__(self, population_count: int, gene_values_sets: List[Set]):
         self.gene_values_sets: List[Set] = gene_values_sets

@@ -1,11 +1,11 @@
 from copy import deepcopy
 
+import jsonpickle
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from tqdm import tqdm
 
-from base_genetic_algorithm import PipelineGeneticAlgorithm
 from crossovers import OnePlaceCrossover
 from graph_coloring_algorithm import GraphVertexColoringPopulation, GraphColoringAlorithm
 from mutations import OnePlaceMutation
@@ -42,14 +42,16 @@ def plot_fitness_in_time(algorithm_history, mean=False, samples=None):
 
 
 def main():
+    save_results = False
+
     graph = graph3
 
     G = nx.Graph(graph)
 
     test_population = GraphVertexColoringPopulation(10, graph, same_color_penalty=1,
                                                     color_diversity_penalty_multiplier=0.33)
-    cross_probabilities = [0.2, 0.5, 0.7, 0.99]
-    mutation_probabilities = [0.001, 0.01, 0.1, 0.5]
+    cross_probabilities = [0.7]  # [0.2, 0.5, 0.7, 0.99]
+    mutation_probabilities = [0.05]  # [0.001, 0.01, 0.05, 0.1, 0.5]
 
     results = []
     for idx_cross, cross_probability in enumerate(cross_probabilities):
@@ -61,7 +63,7 @@ def main():
                     OnePlaceCrossover(probability=cross_probability),
                     OnePlaceMutation(probability=mutation_probability)
                 ],
-                no_update_iters=8000
+                no_update_iters=None
             )
 
             gen_alg.run(20000)
@@ -73,13 +75,14 @@ def main():
             print(len(set(color_solution)))
 
             results.append({"cross_prob": cross_probability, "mut_prob": mutation_probability,
-                            "last_best": (
-                                color_solution, gen_alg.population.get_fitness_for_individual(color_solution)),
-                            "best": best_color_solution_found, })
-            # show_graph_with_colors(G, color_solution)
-            # plot_fitness_in_time(gen_alg.history, samples=500, mean=False)
+                            "instance": gen_alg})
+            show_graph_with_colors(G, color_solution)
+            plot_fitness_in_time(gen_alg.history, samples=500, mean=False)
 
-    print(results)
+    if save_results:
+        with open("results.txt", "w") as f:
+            f.write(jsonpickle.encode(results))
+            f.close()
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import numpy as np
 from base_genetic_algorithm import Population, PipelineGeneticAlgorithm
 
 
-class GraphVertexColoringPopulation(Population):
+class GraphVertexColoringPopulation(Population, object):
 
     def __init__(self, population_count: int, adjacency_matrix: np.matrix,
                  color_diversity_penalty_multiplier: float = 1.0,
@@ -49,7 +49,7 @@ class GraphVertexColoringPopulation(Population):
         return self.adjacency_matrix.sum(0).max() + 1
 
 
-class GraphColoringAlorithm(PipelineGeneticAlgorithm):
+class GraphColoringAlorithm(PipelineGeneticAlgorithm, object):
 
     def __init__(self, population: Population, pipeline: List, no_update_iters: Optional[int] = None,
                  verbose: bool = False):

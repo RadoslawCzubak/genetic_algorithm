@@ -1,5 +1,8 @@
+import json
 from typing import List
+
 import numpy as np
+
 
 def to_adj_matrix(string: str):
     lines = string.split('\n')
@@ -14,6 +17,7 @@ def to_adj_matrix(string: str):
         adj_mat.append(clear_line)
     return np.matrix(adj_mat)
 
+
 def is_list_of_unique_objects(l: List) -> bool:
     test = []
     for jj, _ in enumerate(l):
@@ -21,3 +25,19 @@ def is_list_of_unique_objects(l: List) -> bool:
             if jj != j:
                 test.append(l[jj] is l[j])
     return any(test)
+
+
+class AlgorithmEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.matrix):
+            return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, set):
+            return list(obj)
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
