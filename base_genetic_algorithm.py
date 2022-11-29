@@ -50,7 +50,7 @@ class MutationMethod(ABC):
 class SelectionMethod(ABC):
 
     @abstractmethod
-    def select(self, population: Population, k):
+    def select(self, population: Population, k) -> Population:
         pass
 
 

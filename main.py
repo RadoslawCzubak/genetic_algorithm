@@ -9,7 +9,7 @@ from tqdm import tqdm
 from crossovers import OnePlaceCrossover
 from graph_coloring_algorithm import GraphVertexColoringPopulation, GraphColoringAlorithm
 from mutations import OnePlaceMutation
-from selections import RouletteSelection
+from selections import RouletteSelection, TournamentSelection
 from test_graphs import graph3
 
 
@@ -60,6 +60,7 @@ def main():
                 population=deepcopy(test_population),
                 pipeline=[
                     RouletteSelection(),
+                    #TournamentSelection(n_elements_in_group=2),
                     OnePlaceCrossover(probability=cross_probability),
                     OnePlaceMutation(probability=mutation_probability)
                 ],
@@ -77,7 +78,7 @@ def main():
             results.append({"cross_prob": cross_probability, "mut_prob": mutation_probability,
                             "instance": gen_alg})
             show_graph_with_colors(G, color_solution)
-            plot_fitness_in_time(gen_alg.history, samples=500, mean=False)
+            plot_fitness_in_time(gen_alg.history, samples=2000, mean=False)
 
     if save_results:
         with open("results.txt", "w") as f:
