@@ -1,7 +1,9 @@
 import json
 from typing import List
 
+import networkx as nx
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def to_adj_matrix(string: str):
@@ -41,3 +43,22 @@ class AlgorithmEncoder(json.JSONEncoder):
             return list(obj)
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, obj)
+
+
+def show_graph_with_colors(graph, vertex_colors):
+    pos = nx.shell_layout(graph)
+    color_map = plt.cm.get_cmap('Spectral')
+
+    nx.draw(
+        graph,
+        pos,
+        node_color=[color_map(vertex_colors[idx] / max(vertex_colors)) for idx, node in enumerate(graph)],
+        with_labels=True
+    )
+    plt.show()
+
+
+def save_algorithm_history(algorithm, path: str, filename: str):
+    history = algorithm.history
+    history = np.array([pop.individuals for pop in history])
+    np.save(f"{path}/{filename}.npy", history)

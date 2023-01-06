@@ -11,13 +11,14 @@ class OnePlaceMutation(MutationMethod):
 
     def mutate(self, population: Population):
         mutation_prob = [random.random() for i in population.individuals]
-        for index, individual in enumerate(population.individuals):
+        new_population = copy.deepcopy(population)
+        for index, individual in enumerate(new_population.individuals):
             if mutation_prob[index] < self.probability:
                 mutation_index = random.randint(0, len(individual) - 1)
                 individual[mutation_index] = copy.deepcopy(
                     random.choice(list(population.gene_values_sets[mutation_index]))
                 )
-        return population
+        return new_population
 
 
 class Inversion(MutationMethod):
@@ -27,7 +28,8 @@ class Inversion(MutationMethod):
 
     def mutate(self, population: Population) -> Population:
         mutation_prob = [random.random() for i in population.individuals]
-        for index, individual in enumerate(population.individuals):
+        new_population = copy.deepcopy(population)
+        for index, individual in enumerate(new_population.individuals):
             if mutation_prob[index] < self.probability:
                 start = random.randint(1, len(population.gene_values_sets) - 1)
                 end = random.randint(1, len(population.gene_values_sets) - 1)
@@ -36,4 +38,18 @@ class Inversion(MutationMethod):
                 inverted = individual[indices[0]: indices[1]]
                 inverted.reverse()
                 individual[indices[0]: indices[1]] = inverted
-        return population
+        return new_population
+
+
+class SortMutation(MutationMethod):
+
+    def __init__(self, probability):
+        self.probability = probability
+
+    def mutate(self, population: Population) -> Population:
+        mutation_prob = [random.random() for i in population.individuals]
+        new_population = copy.deepcopy(population)
+        for index, individual in enumerate(new_population.individuals):
+            if mutation_prob[index] < self.probability:
+                individual.sort(reverse=random.randint(0, 10) % 2 == 0)
+        return new_population

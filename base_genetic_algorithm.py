@@ -74,7 +74,7 @@ class BaseGeneticAlgorithm(ABC):
         self.verbose = verbose
 
     def run(self, generations):
-        for i in tqdm(range(0, generations)):
+        for i in range(0, generations):
             self.run_iteration()
             self.history.append(copy.deepcopy(self.population))
             if self.verbose:

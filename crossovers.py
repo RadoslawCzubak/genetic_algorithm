@@ -53,9 +53,12 @@ class MultiplePlaceCrossover(CrossOverMethod):
 
         for idx, (parent1, parent2) in enumerate(parents_pairs):
             if crossover_probability[idx] < self.probability:
-                cross_fields = random.sample(range(1, self.n_crossover_places), self.n_crossover_places)
+                if self.n_crossover_places < (n_genes -1):
+                    cross_fields = random.sample(range(1, n_genes - 1), self.n_crossover_places)
+                else:
+                    cross_fields = list(range(1, self.n_crossover_places))
                 cross_fields.sort()
-                child1, child2 = self._crossover_multiple_places()
+                child1, child2 = self._crossover_multiple_places(cross_fields, parent1, parent2)
                 children.extend([child2, child1])
             else:
                 children.extend([copy.deepcopy(parent1), copy.deepcopy(parent2)])
