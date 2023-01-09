@@ -62,3 +62,6 @@ def save_algorithm_history(algorithm, path: str, filename: str):
     history = algorithm.history
     history = np.array([pop.individuals for pop in history])
     np.save(f"{path}/{filename}.npy", history)
+
+def no_adj_matrix_operator(x):
+    return (x + 1) % 2
